@@ -2,7 +2,7 @@
 
 ## 1. Visão Geral do Projeto
 
-Este documento detalha a execução de um projeto prático para implantar aplicações em um ambiente Kubernetes. O principal objetivo foi utilizar a metodologia **GitOps**, onde o repositório Git serve como a única fonte de verdade para definir o estado desejado da infraestrutura e das aplicações, garantindo um fluxo de entrega automatizado, seguro e auditável.
+Este documento detalha a execução de um projeto prático para implantar aplicações em um ambiente Kubernetes. O principal objetivo foi utilizar a metodologia **GitOps**, onde o repositório Git serve como a única fonte para definir o estado desejado da infraestrutura e das aplicações, garantindo um fluxo de entrega automatizado, seguro e auditável.
 
 ## 2. Ferramentas e Conceitos-Chave
 
@@ -55,7 +55,12 @@ O projeto foi dividido em um setup inicial seguido de tarefas adicionais para ap
 ## 4. Evidências
 
 * **Aplicações Rodando**
-  ![](imagens/aplicacoes-funcionando)
-* **Teste de Escalabilidade (`loadgenerator`)**
+  ![](imagens/aplicacoes-funcionando.png)
+* **Escalabilidade loadgenerator**
+  ![](imagens/escalabilidade-loadgenerator.png)
+* **Online Boutique funcionando**
+  ![](imagens/pagina-boutique.png)
+* **Nginx Funcionando**
+  ![](imagens/pagina-nginx.png)
 
 
