@@ -50,9 +50,10 @@ O projeto foi dividido em um setup inicial seguido de tarefas adicionais para ap
     3.  O arquivo `values.yaml` foi editado para especificar a imagem `nginx:latest`.
     4.  A pasta `templates/` foi simplificada para conter apenas os recursos essenciais (`deployment.yaml` e `service.yaml`).
     5.  O novo chart foi adicionado ao repositório Git de forma segura.
-* **Próximo Passo:** Criar uma nova aplicação no ArgoCD para implantar este chart no cluster.
+    6. **Para a implantação, uma nova aplicação foi criada no ArgoCD** (`nginx-helm`), apontando para o caminho `nginx-chart` dentro do repositório.
+    * **Resultado:** O ArgoCD detectou e interpretou o Helm Chart automaticamente. Após a sincronização, a aplicação `nginx-helm` foi implantada com sucesso no cluster, alcançando o status de `Healthy` e `Synced`,         provando a capacidade de gerenciar pacotes Helm através do fluxo GitOps.
 
-## 4. Evidências
+## 4. Resultados
 
 * **Aplicações Rodando**
   ![](imagens/aplicacoes-funcionando.png)
