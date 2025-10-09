@@ -54,7 +54,8 @@ O projeto foi dividido em um setup inicial seguido de tarefas adicionais para ap
 
 ## 4. Evidências
 
-* **Setup Inicial (`Online Boutique`)**
-    * **Teste de Escalabilidade (`loadgenerator`)**
-    * **Aplicação Nginx via Helm**
-    ```
+* **Aplicações Rodando**
+  ![](imagens/aplicacoes-funcionando)
+* **Teste de Escalabilidade (`loadgenerator`)**
+
+
