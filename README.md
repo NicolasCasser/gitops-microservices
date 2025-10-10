@@ -13,45 +13,42 @@ Este documento detalha a execução de um projeto prático para implantar aplica
 * **Helm:** Gerenciador de pacotes para o Kubernetes. Ele agrupa todos os recursos de uma aplicação em um pacote reutilizável chamado "Chart".
 * **Rancher Desktop:** Software para executar um cluster Kubernetes em um ambiente de desenvolvimento local.
 
-## 3. Execução do Projeto
+## 3. Fases do Projeto
 
-O projeto foi dividido em um setup inicial seguido de tarefas adicionais para aprofundar os conhecimentos.
+O desenvolvimento do projeto foi estruturado em fases incrementais, começando com uma implantação básica e evoluindo para práticas mais avançadas de segurança e gerenciamento de pacotes.
 
-### Etapa 1: Setup Inicial - Aplicação "Online Boutique"
+### Fase 1: Implantação Inicial com GitOps
 
-* **Ação:** Implantação de uma aplicação de microserviços (`Online Boutique`) a partir de um repositório público.
-* **Como foi feito:**
-    1.  O ArgoCD foi instalado no cluster Kubernetes local.
-    2.  Uma aplicação foi criada no ArgoCD, apontando para um repositório no GitHub que continha os manifestos YAML da aplicação.
-    3.  O ArgoCD sincronizou os manifestos, e a aplicação foi implantada com sucesso.
-    4.  O acesso ao frontend foi realizado via `kubectl port-forward`.
+* **Objetivo:** Implantar a aplicação de microserviços "Online Boutique", utilizando um fluxo GitOps básico para validar a configuração do ambiente Kubernetes local, gerenciado pelo Rancher Desktop.
+* **Processo:**
+    1.  **Preparação do Repositório:** Um repositório Git (`gitops-microservices`) foi criado para servir como a "fonte da verdade", conforme a metodologia GitOps. Este repositório foi populado com o manifesto Kubernetes da aplicação (`online-boutique.yaml`), obtido a partir de um fork do projeto oficial `GoogleCloudPlatform/microservices-demo`.
+    2.  **Instalação do ArgoCD:** A ferramenta de GitOps, ArgoCD, foi instalada no cluster Kubernetes através de seu manifesto de instalação padrão.
+    3.  **Configuração da Aplicação:** Uma nova aplicação foi configurada no painel do ArgoCD, estabelecendo a conexão entre o repositório GitOps e o cluster Kubernetes local. A política de sincronização foi definida como automática, para que qualquer alteração no Git fosse refletida no cluster.
+* **Resultado:** O ArgoCD sincronizou o estado do cluster com os manifestos do repositório, implantando todos os microserviços com sucesso. O acesso ao frontend foi viabilizado através do comando `kubectl port-forward`, confirmando a funcionalidade do ambiente.
 
-### Etapa 2: Teste de Escalabilidade
+### Fase 2: Validação do Fluxo com Teste de Escalabilidade
 
-* **Ação:** Um teste de escalabilidade foi realizado para validar o fluxo GitOps.
-* **Como foi feito:** O número de réplicas do `Deployment` do serviço `loadgenerator` foi alterado de `1` para `3` diretamente no arquivo de manifesto. A alteração foi enviada ao GitHub com `git push`.
-* **Resultado:** O ArgoCD detectou a mudança e, sem intervenção manual, escalou o número de pods para 3, provando a eficácia do ciclo de automação.
+* **Objetivo:** Validar a automação e a reatividade do ciclo GitOps através de uma alteração declarativa na configuração da aplicação, conforme sugerido como passo opcional no plano do projeto.
+* **Processo:** O manifesto `online-boutique.yaml` foi modificado diretamente, alterando o número de réplicas (`replicas: 3`) do `Deployment` para o serviço `loadgenerator`. A alteração foi enviada ao repositório Git através de um `git push`.
+* **Resultado:** Conforme o esperado, o ArgoCD detectou a alteração no Git e, sem intervenção manual, ajustou o estado do cluster, escalando o número de pods do serviço para 3. Esta fase confirmou a eficácia do fluxo GitOps para gerenciar o ciclo de vida das aplicações.
 
-### Etapa 3: Tarefa Adicional - Acesso a Repositório Privado
+### Fase 3: Adoção de Repositório Privado e Acesso via SSH
 
-* **Ação:** A segurança do projeto foi aprimorada migrando o repositório do GitHub de público para privado e configurando o acesso via SSH.
-* **Como foi feito:**
-    1.  A visibilidade do repositório foi alterada para "Private" no GitHub.
-    2.  Um par de chaves SSH foi gerado. A chave pública foi adicionada como "Deploy Key" no GitHub, e a chave privada foi configurada como um segredo de repositório no ArgoCD.
-    3.  A URL do repositório na aplicação do ArgoCD foi atualizada para o formato SSH (`git@github.com:...`).
-* **Resultado:** O ArgoCD se conectou com sucesso ao repositório privado, mantendo o deploy seguro e automatizado. Em caso de vazamento acidental da chave privada, foi realizado o procedimento de limpeza do histórico do Git e a revogação da chave comprometida.
+* **Objetivo:** Aumentar a segurança do projeto, migrando o repositório para um ambiente privado e configurando o acesso seguro para a ferramenta de automação.
+* **Processo:**
+    1.  **Privacidade:** A visibilidade do repositório no GitHub foi alterada de "Public" para "Private".
+    2.  **Autenticação:** Um par de chaves SSH foi gerado. A chave pública foi configurada como uma "Deploy Key" no GitHub (com acesso somente leitura), e a chave privada foi armazenada como um segredo no ArgoCD.
+    3.  **Reconfiguração:** A configuração da aplicação no ArgoCD foi atualizada para usar a URL do repositório no formato SSH.
+* **Resultado:** O ArgoCD estabeleceu uma conexão segura e autenticada com o repositório privado, mantendo a capacidade de sincronização e automação em um ambiente seguro, mais próximo de um cenário de produção.
 
-### Etapa 4: Tarefa Adicional - Implantação com Helm Chart
+### Fase 4: Empacotamento e Implantação com Helm
 
-* **Ação:** Criação de um "Chart" Helm para empacotar e implantar uma nova aplicação (Nginx).
-* **Como foi feito:**
-    1.  A ferramenta de linha de comando `helm` foi instalada.
-    2.  O comando `helm create nginx-chart` foi utilizado para gerar a estrutura padrão do chart.
-    3.  O arquivo `values.yaml` foi editado para especificar a imagem `nginx:latest`.
-    4.  A pasta `templates/` foi simplificada para conter apenas os recursos essenciais (`deployment.yaml` e `service.yaml`).
-    5.  O novo chart foi adicionado ao repositório Git de forma segura.
-    6. **Para a implantação, uma nova aplicação foi criada no ArgoCD** (`nginx-helm`), apontando para o caminho `nginx-chart` dentro do repositório.
-    * **Resultado:** O ArgoCD detectou e interpretou o Helm Chart automaticamente. Após a sincronização, a aplicação `nginx-helm` foi implantada com sucesso no cluster, alcançando o status de `Healthy` e `Synced`,         provando a capacidade de gerenciar pacotes Helm através do fluxo GitOps.
+* **Objetivo:** Utilizar o Helm, o gerenciador de pacotes do Kubernetes, para empacotar e implantar uma nova aplicação (Nginx), demonstrando uma abordagem mais avançada e reutilizável de gerenciamento de configurações.
+* **Processo:**
+    1.  **Criação do Chart:** Um "Chart" Helm foi criado com o comando `helm create nginx-chart`.
+    2.  **Customização:** O arquivo `values.yaml` foi customizado para utilizar a imagem `nginx:latest`, e os templates na pasta `templates/` foram simplificados para um deploy básico.
+    3.  **Implantação:** Uma segunda aplicação (`nginx-helm`) foi criada no ArgoCD, desta vez apontando para o diretório do Helm Chart (`nginx-chart`) dentro do repositório GitOps.
+* **Resultado:** O ArgoCD identificou, renderizou e implantou o Helm Chart com sucesso, criando os recursos do Nginx no cluster. Isso demonstrou a capacidade do fluxo GitOps de gerenciar e implantar aplicações empacotadas com Helm, uma prática padrão na indústria.
 
 ## 4. Resultados
 
